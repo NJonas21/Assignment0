@@ -1,6 +1,9 @@
 import socket
 import time
 
+
+# TODO: Put everything in a main function
+
 clientName = socket.gethostname()
 client_ip = socket.gethostbyname(clientName)
 

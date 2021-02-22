@@ -1,13 +1,6 @@
 import socket
 
 
-serverName = socket.gethostname()
-server_ip = socket.gethostbyname(serverName)
-
-server_port = 50001
-
-print(f"name: {serverName}")
-print(f"IP: {server_ip}")
 
 
 # TODO: Add a Map/dictionary with recognized header commands that aren't GET, PUT etc.
@@ -17,6 +10,37 @@ print(f"IP: {server_ip}")
 
 # TODO: Add a method for each HTTP request command
 # (GET, PUT, POST, DELETE, HEAD)
+
+def GET():
+    #Insert function for GET method here
+    return None
+
+def POST():
+    #Insert function for POST method here
+    return None
+
+def PUT():
+    #Insert function for PUT method here
+    return None
+
+def DELETE():
+    #Insert function for DELETE method here
+    return None
+
+def HEAD():
+    #Insert function for HEAD method here
+    return None
+
+# TODO: Put everything in a main function
+
+serverName = socket.gethostname()
+server_ip = socket.gethostbyname(serverName)
+
+server_port = 50001
+
+print(f"name: {serverName}")
+print(f"IP: {server_ip}")
+
 
 server_addr = (server_ip, server_port) # Remember it is a tuple you dummy
 
@@ -30,20 +54,32 @@ print("Listening for clients")
 
 server_socket.listen(5) # Listen for clients
 
-conn, address = server_socket.accept() # Receiving tuple with (socket, address)
+clinet_conn, client_address = server_socket.accept() # Receiving tuple with (socket, address)
 
 print("Client Accepted!")
 
 # Exercise : Learn how to use flags
-header = conn.recv(1024).decode("utf-8") # Specify size in Bytes
+header = client_conn.recv(1024).decode("utf-8") # Specify size in Bytes
 # Also make sure the decoding is the same as the encoding
 
 commands = header.split("\n") # split by normal \n character
 
-commandsLen = len(commands)
 
-for i in range(1, commandsLen, 1):
-    print(commands[i])
+for i in commands:
+    if ":" is not in i:
+        cmdSplit = i.split(" ")
+        if cmdSplit[0] == "GET":
+            #GET(cmdSplit, client_conn)
+        elif cmdSplit[0] == "POST":
+            #POST(cmdSplit, client_conn)
+        elif cmdSplit[0] == "PUT":
+            #PUT(cmdSplit, client_conn)
+        elif cmdSplit[0] == "HEAD":
+            #HEAD(cmdSplit, client_conn)
+        else:
+            #DELETE(cmdSplit, client_conn)
+    else:
+        print(i)
     # TODO: Check for if all commands other than primary header in the map
     # If even one is missing, cancel the request and return a bad response
     # to the client
