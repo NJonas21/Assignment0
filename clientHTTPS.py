@@ -1,4 +1,5 @@
 import socket
+import time
 
 clientName = socket.gethostname()
 client_ip = socket.gethostbyname(clientName)
@@ -26,5 +27,9 @@ data = splitMsg[1]
 client_socket.send(header.encode('utf-8')) # Turns message into a byte string
 # Send the header
 
+time.sleep(2) # give the server some time to process info
+
+# TODO: Create check for server response on whether request was valid or not
+# If request was valid, send data.
 
 client_socket.close()

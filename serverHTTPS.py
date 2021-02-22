@@ -10,8 +10,13 @@ print(f"name: {serverName}")
 print(f"IP: {server_ip}")
 
 
-# TO DO: Add a Map/dictionary with recognized header commands that aren't GET, PUT etc.
+# TODO: Add a Map/dictionary with recognized header commands that aren't GET, PUT etc.
 # Like "Connection: close" or User-agent: Mozilla/5.0
+# Need to include data size as well (This will not need to be exact)
+# Ajit said there needed to be at least 5 map categories.
+
+# TODO: Add a method for each HTTP request command
+# (GET, PUT, POST, DELETE, HEAD)
 
 server_addr = (server_ip, server_port) # Remember it is a tuple you dummy
 
@@ -38,10 +43,11 @@ commands = header.split("\n") # split by normal \n character
 commandsLen = len(commands)
 
 for i in range(1, commandsLen, 1):
-    print(i)
+    print(commands[i])
     # TODO: Check for if all commands other than primary header in the map
     # If even one is missing, cancel the request and return a bad response
     # to the client
+    # Also find the size of the data here
 
 #print(message)
 
