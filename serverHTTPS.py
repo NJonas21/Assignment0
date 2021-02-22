@@ -9,6 +9,10 @@ server_port = 50001
 print(f"name: {serverName}")
 print(f"IP: {server_ip}")
 
+
+# TO DO: Add a Map/dictionary with recognized header commands that aren't GET, PUT etc.
+# Like "Connection: close" or User-agent: Mozilla/5.0
+
 server_addr = (server_ip, server_port) # Remember it is a tuple you dummy
 
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # Create server socket
@@ -26,10 +30,20 @@ conn, address = server_socket.accept() # Receiving tuple with (socket, address)
 print("Client Accepted!")
 
 # Exercise : Learn how to use flags
-message = conn.recv(1024).decode("utf-8") # Specify size in Bytes
+header = conn.recv(1024).decode("utf-8") # Specify size in Bytes
 # Also make sure the decoding is the same as the encoding
 
-print(message)
+commands = header.split("\n") # split by normal \n character
+
+commandsLen = len(commands)
+
+for i in range(1, commandsLen, 1):
+    print(i)
+    # TODO: Check for if all commands other than primary header in the map
+    # If even one is missing, cancel the request and return a bad response
+    # to the client
+
+#print(message)
 
 conn.close()
 

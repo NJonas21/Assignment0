@@ -18,6 +18,13 @@ client_socket.connect(server_addr)
 
 message = input("Type a HTTP request for the server: ") # Header + data
 
-client_socket.send(message.encode('utf-8')) # Turns message into a byte string
+splitMsg = message.split("\n\n") # Split header and data by \n\n
+
+header = splitMsg[0]
+data = splitMsg[1]
+
+client_socket.send(header.encode('utf-8')) # Turns message into a byte string
+# Send the header
+
 
 client_socket.close()
