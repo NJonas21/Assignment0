@@ -70,7 +70,9 @@ def headerFields(headerSplit):
     return None
 
 cmdSplit = commands[0].split(" ")
-if True: #TODO implement version check
+version= cmdSplit[2].split("/")
+versionNum = float(version[1])
+if versionNum >= 1.0 and versionNum <= 2.0: #TODO implement version check
     if os.path.exists(cmdSplit[1]) == True:
 
         if cmdSplit[0] == "GET":
