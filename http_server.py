@@ -1,4 +1,5 @@
 import socket
+import time
 import os
 
 
@@ -11,9 +12,9 @@ import os
 # TODO: Add a method for each HTTP request command
 # (GET, PUT, POST, DELETE, HEAD)
 
-def GET(commandSplit):
-    else:
-        return "404 Not Found"
+def GET():
+
+    return None
 
 def POST():
 
@@ -30,6 +31,10 @@ def DELETE():
 def HEAD():
     #Insert function for HEAD method here
     return None
+
+def headerFields():
+    return None
+
 
 # TODO: Put everything in a main function
 
@@ -58,39 +63,51 @@ client_conn, client_address = server_socket.accept() # Receiving tuple with (soc
 
 print("Client Accepted!")
 
-# Exercise : Learn how to use flags
-header = client_conn.recv(1024).decode("utf-8") # Specify size in Bytes
+# Receive the bufsize needed
+bufsize = int(client_conn.recv(4).decode("utf-8")) # Specify size in Bytes
 # Also make sure the decoding is the same as the encoding
 
-commands = header.split("\n") # split by normal \n character
+client_conn.send("received".encode("utf-8"))
+
+time.sleep(1)
+
+request = client_conn.recv(bufsize).decode("utf-8") # Now recieve the request
+
+print(f"request = {request}")
+
+header, data = request.split("\n\n") # split by normal \n character
+
+headerSplit = header.split("\n")
 
 response = []
 
 def headerFields(headerSplit):
     return None
 
-cmdSplit = commands[0].split(" ")
+cmdSplit = headerSplit[0].split(" ")
 version= cmdSplit[2].split("/")
 versionNum = float(version[1])
-if versionNum >= 1.0 and versionNum <= 2.0: #TODO implement version check
-    if os.path.exists(cmdSplit[1]) == True:
+cond1 = versionNum >= 1.0
+cond2 = versionNum <= 2.0
+cond3 = os.path.exists(cmdSplit[1]) == True
 
+if cond1 and cond2:
+    if cond3:
         if cmdSplit[0] == "GET":
-            #response = GET(cmdSplit, client_conn)
-        elif cmdSplit[0] == "POST":
-            #response = POST(cmdSplit, client_conn)
+            print("got")
         elif cmdSplit[0] == "PUT":
-            #response = PUT(cmdSplit, client_conn)
+            print("put")
+        elif cmdSplit[0] == "POST":
+            print("post")
         elif cmdSplit[0] == "HEAD":
-            #response = HEAD(cmdSplit, client_conn)
+            print("head")
         else:
-            #response = DELETE(cmdSplit, client_conn)
-else:
-    response[0] = "505 HTTP Version Not Supported"
+            print("delete")
 
-for i in commands[1:]:
-    headerSplit = i.split(": ")
-    response.append(headerFields(headerSplit))
+
+for i in headerSplit[1:]:
+    headerfield = i.split(": ")
+    response.append(headerFields(headerfield))
     print(i)
     # TODO: Check for if all commands other than primary header in the map
     # If even one is missing, cancel the request and return a bad response

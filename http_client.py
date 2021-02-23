@@ -20,17 +20,22 @@ client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 client_socket.connect(server_addr)
 
-message = input("Type a HTTP request for the server: ") # Header + data
+#message = input("Type a HTTP request for the server: ") # Header + data
 
-splitMsg = message.split("\n\n") # Split header and data by \n\n
+message = f"GET webserver/a.txt HTTP/1.1\nConnection: closed\nhost: {clientName}\n\nGenerated data here"
 
-header = splitMsg[0]
-data = splitMsg[1]
+encodeMsg = message.encode("utf-8")
 
-client_socket.send(header.encode('utf-8')) # Turns message into a byte string
-# Send the header
+bufsize = len(encodeMsg)
 
-time.sleep(2) # give the server some time to process info
+#Send the initial byte size for buffer
+client_socket.send(str(bufsize).encode("utf-8")) # Turns message into a byte string
+
+time.sleep(1) # give the server some time to process info
+
+conf = client_socket.recv(8)
+
+client_socket.send(encodeMsg)
 
 # TODO: Create check for server response on whether request was valid or not
 # If request was valid, send data.
