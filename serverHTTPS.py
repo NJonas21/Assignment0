@@ -69,16 +69,17 @@ for i in commands:
     if ":" is not in i:
         cmdSplit = i.split(" ")
         if cmdSplit[0] == "GET":
-            #GET(cmdSplit, client_conn)
+            #response = GET(cmdSplit, client_conn)
         elif cmdSplit[0] == "POST":
-            #POST(cmdSplit, client_conn)
+            #response = POST(cmdSplit, client_conn)
         elif cmdSplit[0] == "PUT":
-            #PUT(cmdSplit, client_conn)
+            #response = PUT(cmdSplit, client_conn)
         elif cmdSplit[0] == "HEAD":
-            #HEAD(cmdSplit, client_conn)
+            #response = HEAD(cmdSplit, client_conn)
         else:
-            #DELETE(cmdSplit, client_conn)
+            #response = DELETE(cmdSplit, client_conn)
     else:
+        cmdSplit = i.split(": ")
         print(i)
     # TODO: Check for if all commands other than primary header in the map
     # If even one is missing, cancel the request and return a bad response
