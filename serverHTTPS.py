@@ -1,5 +1,5 @@
 import socket
-
+import os
 
 
 
@@ -11,12 +11,12 @@ import socket
 # TODO: Add a method for each HTTP request command
 # (GET, PUT, POST, DELETE, HEAD)
 
-def GET():
-    #Insert function for GET method here
-    return None
+def GET(commandSplit):
+    else:
+        return "404 Not Found"
 
 def POST():
-    #Insert function for POST method here
+
     return None
 
 def PUT():
@@ -54,7 +54,7 @@ print("Listening for clients")
 
 server_socket.listen(5) # Listen for clients
 
-clinet_conn, client_address = server_socket.accept() # Receiving tuple with (socket, address)
+client_conn, client_address = server_socket.accept() # Receiving tuple with (socket, address)
 
 print("Client Accepted!")
 
@@ -64,10 +64,15 @@ header = client_conn.recv(1024).decode("utf-8") # Specify size in Bytes
 
 commands = header.split("\n") # split by normal \n character
 
+response = []
 
-for i in commands:
-    if ":" is not in i:
-        cmdSplit = i.split(" ")
+def headerFields(headerSplit):
+    return None
+
+cmdSplit = commands[0].split(" ")
+if True: #TODO implement version check
+    if os.path.exists(cmdSplit[1]) == True:
+
         if cmdSplit[0] == "GET":
             #response = GET(cmdSplit, client_conn)
         elif cmdSplit[0] == "POST":
@@ -78,16 +83,24 @@ for i in commands:
             #response = HEAD(cmdSplit, client_conn)
         else:
             #response = DELETE(cmdSplit, client_conn)
-    else:
-        cmdSplit = i.split(": ")
-        print(i)
+else:
+    response[0] = "505 HTTP Version Not Supported"
+
+for i in commands[1:]:
+    headerSplit = i.split(": ")
+    response.append(headerFields(headerSplit))
+    print(i)
     # TODO: Check for if all commands other than primary header in the map
     # If even one is missing, cancel the request and return a bad response
     # to the client
     # Also find the size of the data here
 
-#print(message)
+responseMessage = ""
+for j in response:
+    responseMessage += f"{response} \n"
 
-conn.close()
+print(responseMessage)
+
+client_conn.close()
 
 server_socket.close()
