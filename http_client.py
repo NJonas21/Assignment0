@@ -2,42 +2,52 @@ import socket
 import time
 
 
-# TODO: Put everything in a main function
+def main():
+    """Main function"""
+    clientName = socket.gethostname()
+    client_ip = socket.gethostbyname(clientName)
 
-clientName = socket.gethostname()
-client_ip = socket.gethostbyname(clientName)
+    client_port = 50002 # Client port
 
-client_port = 50002
+    server_ip = "192.168.56.1" # Need Server ip
+    server_port = 50001 # Server port
 
-server_ip = "10.104.65.5"
-server_port = 50001
+    server_addr = (server_ip, server_port)
 
-server_addr = (server_ip, server_port)
+    client_addr = (client_ip, client_port)
 
-client_addr = (client_ip, client_port)
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client_socket.connect(server_addr)
 
-client_socket.connect(server_addr)
+    #message = input("Type a HTTP request for the server: ") # Header + data
 
-#message = input("Type a HTTP request for the server: ") # Header + data
+    message = f"POST webserver/a.txt HTTP/1.1\nConnection: closed\nhost: {clientName}\n\nClient's Parameters"
 
-message = f"GET webserver/a.txt HTTP/1.1\nConnection: closed\nhost: {clientName}\n\nGenerated data here"
+    encodeMsg = message.encode("utf-8")
 
-encodeMsg = message.encode("utf-8")
+    bufsize = len(encodeMsg)
 
-bufsize = len(encodeMsg)
+    #Send the initial byte size for buffer
+    client_socket.send(str(bufsize).encode("utf-8")) # Turns message into a byte string
 
-#Send the initial byte size for buffer
-client_socket.send(str(bufsize).encode("utf-8")) # Turns message into a byte string
+    time.sleep(1) # give the server some time to process info
 
-time.sleep(1) # give the server some time to process info
+    conf = client_socket.recv(8) # Receiving confirmation from the server
 
-conf = client_socket.recv(8)
+    client_socket.send(encodeMsg) # Sending the message
 
-client_socket.send(encodeMsg)
+    time.sleep(1) # waiting for server to process
 
-# TODO: Create check for server response on whether request was valid or not
-# If request was valid, send data.
+    responseSize = int(client_socket.recv(4).decode("utf-8")) # Receive server response size
 
-client_socket.close()
+    response = client_socket.recv(responseSize).decode("utf-8") # Receiving the actual response
+
+    print(response) # Print the response
+
+    client_socket.close()
+#End of main()
+
+
+if __name__ == "__main__":
+    main()

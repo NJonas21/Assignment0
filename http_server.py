@@ -1,129 +1,177 @@
 import socket
 import time
 import os
+import datetime
 
 
-
-# TODO: Add a Map/dictionary with recognized header commands that aren't GET, PUT etc.
-# Like "Connection: close" or User-agent: Mozilla/5.0
-# Need to include data size as well (This will not need to be exact)
-# Ajit said there needed to be at least 5 map categories.
-
-# TODO: Add a method for each HTTP request command
-# (GET, PUT, POST, DELETE, HEAD)
-
-def GET():
-
-    return None
-
-def POST():
-
-    return None
-
-def PUT():
-    #Insert function for PUT method here
-    return None
-
-def DELETE():
-    #Insert function for DELETE method here
-    return None
-
-def HEAD():
-    #Insert function for HEAD method here
-    return None
-
-def headerFields(headerSplit):
-    return None
+def GET(request):
+    """Fucntion to replicate GET method"""
+    cond = os.path.exists(request[1]) == True
+    if cond:
+        f = open(request[1], "r")
+        data = f.read()
+        print(data)
+        f.close()
+        return "200 OK", data
+    data = None
+    return "404 Not Found", data
+#End of GET()
 
 
-# TODO: Put everything in a main function
-
-serverName = socket.gethostname()
-server_ip = socket.gethostbyname(serverName)
-
-server_port = 50001
-
-print(f"name: {serverName}")
-print(f"IP: {server_ip}")
-
-
-server_addr = (server_ip, server_port) # Remember it is a tuple you dummy
-
-server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # Create server socket
-
-# SOCK_STREAM = Stream of bytes
-
-server_socket.bind(server_addr) # Bind to address
-
-print("Listening for clients")
-
-server_socket.listen(5) # Listen for clients
-
-client_conn, client_address = server_socket.accept()
-# Receiving tuple with (socket, address)
-
-print("Client Accepted!")
-
-# Receive the bufsize needed
-bufsize = int(client_conn.recv(4).decode("utf-8")) # Specify size in Bytes
-# Also make sure the decoding is the same as the encoding
-
-client_conn.send("received".encode("utf-8"))
-
-time.sleep(1)
-
-request = client_conn.recv(bufsize).decode("utf-8") # Now recieve the request
-
-print(f"request = \n{request}")
-
-header, data = request.split("\n\n") # split by normal \n character
-
-headerSplit = header.split("\n")
-
-response = []
+def POST(request, parameters):
+    """Function to replicate POST method"""
+    cond = os.path.exists(request[1]) == True
+    if cond:
+        f = open(request[1], "a")
+        f.write("\n" + parameters)
+        f.close()
+        f = open(request[1], "r")
+        data = f.read()
+        print(data)
+        f.close()
+        return "200 OK", data
+    return "404 Not Found", None
+#End of Post()
 
 
-cmdSplit = headerSplit[0].split(" ")
-version= cmdSplit[2].split("/")
-versionNum = float(version[1])
-cond1 = versionNum >= 1.0
-cond2 = versionNum <= 2.0
-cond3 = os.path.exists(cmdSplit[1]) == True
+def PUT(request):
+    """Function to replicate PUT method"""
+    return "200 OK"
+#End of PUT()
 
-if cond1 and cond2:
+def DELETE(request):
+    """Function to replicate DELETE method"""
+    cond = os.path.exists(request[1]) == True
     if cond3:
-        if cmdSplit[0] == "GET":
-            print("got")
+        return "200 OK"
+    return "404 Not Found"
+#End of DELETE()
+
+
+def HEAD(request):
+    """Function to replicate HEAD method"""
+    cond = os.path.exists(request[1]) == True
+    if cond:
+        return "200 OK"
+    return "404 Not Found"
+#End of HEAD()
+
+
+def main():
+    """Main function"""
+
+    # Generate essential information
+    serverName = socket.gethostname()
+    server_ip = socket.gethostbyname(serverName)
+
+    server_port = 50001
+
+    print(f"name: {serverName}")
+    print(f"IP: {server_ip}")
+
+    # Server fields for header
+    server_fields = {"Connection" : "close", "server" : "Windows 10",
+                     "Date" : str(datetime.datetime.now()), "Content-Length": None, "Content-Type" : "text"}
+
+    server_addr = (server_ip, server_port) # Remember it is a tuple you dummy
+
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # Create server socket
+
+    # SOCK_STREAM = Stream of bytes
+
+    server_socket.bind(server_addr) # Bind to address
+
+    print("Listening for clients")
+
+    server_socket.listen(5) # Listen for clients
+
+    client_conn, client_address = server_socket.accept()
+    # Receiving tuple with (socket, address)
+
+    print("Client Accepted!")
+
+    # Receive the bufsize needed
+    bufsize = int(client_conn.recv(4).decode("utf-8")) # Specify size in Bytes
+    # Also make sure the decoding is the same as the encoding
+
+    client_conn.send("received".encode("utf-8")) # Send a confirmation message
+
+    time.sleep(1)
+
+    request = client_conn.recv(bufsize).decode("utf-8") # Now recieve the request
+
+    print(f"request = \n{request}")
+
+    header, data = request.split("\n\n") # split by normal \n character
+
+    headerSplit = header.split("\n")
+
+    response = [] # Create empty list for formating response
+
+
+    cmdSplit = headerSplit[0].split(" ") # Get the first line of header
+    version= cmdSplit[2].split("/") # Find the version
+    versionNum = float(version[1])
+    cond = versionNum >= 1.0
+
+    if cond: # Checking to see if the version is valid
+        if cmdSplit[0] == "GET": # Checking each method for valid method, if true then execture it
+            SerRespone, SerData = GET(cmdSplit)
         elif cmdSplit[0] == "PUT":
-            print("put")
+            SerResponse = PUT(cmdSplit)
+            SerData = None
         elif cmdSplit[0] == "POST":
-            print("post")
+            SerResponse, SerData = POST(cmdSplit, data)
         elif cmdSplit[0] == "HEAD":
-            print("head")
+            SerResponse = HEAD(cmdSplit)
+            SerData = None
+        elif cmdSplit[0] == "DELETE":
+            SerResponse = DELETE(cmdSplit)
+            SerData = None
         else:
-            print("delete")
+            SerResponse = "400 Bad Request"
     else:
-        print("404 Page Not Found")
-else:
-    print("505 HTTP version not supported")
+        SerResponse = "505 HTTP version not supported"
 
 
-for i in headerSplit[1:]:
-    headerfield = i.split(": ")
-    response.append(headerFields(headerfield))
-    print(i)
-    # TODO: Check for if all commands other than primary header in the map
-    # If even one is missing, cancel the request and return a bad response
-    # to the client
-    # Also find the size of the data here
+    response.append(SerResponse)# Add the first line of response to message
 
-responseMessage = ""
-for j in response:
-    responseMessage += f"{response} \n"
+    if SerResponse != "400 Bad Request" and SerResponse != "505 HTTP version not supported" and SerResponse != "404 Not Found":
+        #Check if Server Response is 200 OK
+        for i in headerSplit[1:]:
+            headerfield = i.split(": ")
+            if headerfield[0] == "Content-Length": # Figure out content length
+                if SerData != None:
+                    response.append(f"Content-Length: {SerData.encode('utf-8')}")
+                else:
+                    response.append(f"Content-Length: 0")
+            else: # If client mentioned the headerfield, send back the server equivalent if it has it
+                if headerfield[0] in server_fields.keys():
+                    response.append(f"{headerfield[0]}: {server_fields[headerfield[0]]}")
+                    
 
-print(responseMessage)
-#TODO: Send Response message back to client with data attached
+    responseMessage = "" # Empty string
+    for j in response: # create the response string
+        responseMessage += f"{j} \n"
 
-client_conn.close()
+    if SerData != None:
+        responseMessage += "\n" + SerData # Add the data
 
-server_socket.close()
+    print(f"response = n\{responseMessage}") # Quick check
+
+    responseEnc = responseMessage.encode("utf-8") # encode the response
+    responseSize = str(len(responseEnc)) # Get size of response
+
+    client_conn.send(responseSize.encode("utf-8")) # Send the size of response for the client
+
+    time.sleep(1) # give client time to process
+
+    client_conn.send(responseEnc) # Send response
+
+    client_conn.close() # Close connections
+
+    server_socket.close()
+#End of main()
+
+if __name__ == "__main__":
+    main()
