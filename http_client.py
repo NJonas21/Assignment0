@@ -9,7 +9,7 @@ def main():
 
     client_port = 50002 # Client port
 
-    server_ip = "192.168.56.1" # Need Server ip
+    server_ip = "192.168.1.17" # Need Server ip
     server_port = 50001 # Server port
 
     server_addr = (server_ip, server_port)
@@ -22,7 +22,8 @@ def main():
 
     #message = input("Type a HTTP request for the server: ") # Header + data
 
-    message = f"POST webserver/a.txt HTTP/1.1\nConnection: closed\nhost: {clientName}\n\nClient's Parameters"
+    message = f"PUT webserver/c.txt HTTP/1.1\nConnection: open\nConnection-Type: txt\nContent-Length: 1024" \
+              f"\nDate: \nServer: \n\nFirst Attempt to write c.txt"
 
     encodeMsg = message.encode("utf-8")
 
@@ -39,9 +40,9 @@ def main():
 
     time.sleep(1) # waiting for server to process
 
-    responseSize = int(client_socket.recv(4).decode("utf-8")) # Receive server response size
+    responseSize = str(client_socket.recv(4).decode("utf-8")) # Receive server response size
 
-    response = client_socket.recv(responseSize).decode("utf-8") # Receiving the actual response
+    response = client_socket.recv(int(responseSize)).decode("utf-8") # Receiving the actual response
 
     print(response) # Print the response
 
