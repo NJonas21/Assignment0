@@ -102,6 +102,10 @@ if cond1 and cond2:
             print("head")
         else:
             print("delete")
+    else:
+        print("404 Page Not Found")
+else:
+    print("505 HTTP version not supported")
 
 
 for i in headerSplit[1:]:
