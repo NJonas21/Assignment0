@@ -1,3 +1,4 @@
+# Authors: Nick Jonas, Bram Dedrick, Chen Xi
 import socket
 import time
 import os
