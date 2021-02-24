@@ -32,7 +32,7 @@ def HEAD():
     #Insert function for HEAD method here
     return None
 
-def headerFields():
+def headerFields(headerSplit):
     return None
 
 
@@ -59,7 +59,8 @@ print("Listening for clients")
 
 server_socket.listen(5) # Listen for clients
 
-client_conn, client_address = server_socket.accept() # Receiving tuple with (socket, address)
+client_conn, client_address = server_socket.accept()
+# Receiving tuple with (socket, address)
 
 print("Client Accepted!")
 
@@ -73,7 +74,7 @@ time.sleep(1)
 
 request = client_conn.recv(bufsize).decode("utf-8") # Now recieve the request
 
-print(f"request = {request}")
+print(f"request = \n{request}")
 
 header, data = request.split("\n\n") # split by normal \n character
 
@@ -81,8 +82,6 @@ headerSplit = header.split("\n")
 
 response = []
 
-def headerFields(headerSplit):
-    return None
 
 cmdSplit = headerSplit[0].split(" ")
 version= cmdSplit[2].split("/")
@@ -119,6 +118,7 @@ for j in response:
     responseMessage += f"{response} \n"
 
 print(responseMessage)
+#TODO: Send Response message back to client with data attached
 
 client_conn.close()
 
