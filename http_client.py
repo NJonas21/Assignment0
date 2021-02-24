@@ -9,7 +9,7 @@ def main():
 
     client_port = 50002 # Client port
 
-    server_ip = "192.168.1.17" # Need Server ip
+    server_ip = "10.104.65.5" # Need Server ip
     server_port = 50001 # Server port
 
     server_addr = (server_ip, server_port)
@@ -22,29 +22,42 @@ def main():
 
     #message = input("Type a HTTP request for the server: ") # Header + data
 
-    message = f"PUT webserver/c.txt HTTP/1.1\nConnection: open\nConnection-Type: txt\nContent-Length: 1024" \
-              f"\nDate: \nServer: \n\nFirst Attempt to write c.txt"
+    pre_made_messages = ["DELETE webserver/deleteme.txt HTTP/1.1\nConnection: open\nConnection-Type: txt\nContent-Length: 1024\nDate: \nServer: \n\n",
+    "GET webserver/404notfound.txt HTTP/1.1\nConnection: open\nConnection-Type: txt\nContent-Length: 1024\nDate: \nServer: \n\n",
+    "PUT webserver/a.txt HTTP/1.1\nConnection: open\nConnection-Type: txt\nContent-Length: 1024\nDate: \nServer: \n\nthis file exists right?",
+    "POST webserver/a.txt HTTP/0.9\nConnection: open\nConnection-Type: txt\nContent-Length: 1024\nDate: \nServer: \n\nversion check.",
+    "GET webserver/a.txt HTTP/1.1\nConnection: open\nConnection-Type: txt\nDate: \nServer: \n\n",
+    "GOT webserver/a.txt HTTP/1.1\nConnection: open\nConnection-Type: txt\nDate: \nServer: \n\n",
+    "GET webserver/a.txt HTTP/0.1\nConnection: open\nConnection-Type: txt\nDate: \nServer: \n\n",
+    "POST webserver/a.txt HTTP/1.1\nConnection: open\nConnection-Type: txt\nContent-Length: \nDate: \nServer: \n\nPut this in a.txt",
+    "PUT webserver/c.txt HTTP/1.1\nConnection: open\nConnection-Type: txt\nContent-Length: \nDate: \nServer: \n\nThis will be in a new file.",
+    "HEAD webserver/a.txt HTTP/1.1\nConnection: open\nConnection-Type: txt\nDate: \nServer: \n\n", "-1"]
 
-    encodeMsg = message.encode("utf-8")
+    for message in pre_made_messages:
+        encodeMsg = message.encode("utf-8")
 
-    bufsize = len(encodeMsg)
+        bufsize = len(encodeMsg)
 
-    #Send the initial byte size for buffer
-    client_socket.send(str(bufsize).encode("utf-8")) # Turns message into a byte string
+        #Send the initial byte size for buffer
+        client_socket.send(str(bufsize).encode("utf-8")) # Turns message into a byte string
 
-    time.sleep(1) # give the server some time to process info
+        time.sleep(1) # give the server some time to process info
 
-    conf = client_socket.recv(8) # Receiving confirmation from the server
+        conf = client_socket.recv(8) # Receiving confirmation from the server
 
-    client_socket.send(encodeMsg) # Sending the message
+        client_socket.send(encodeMsg) # Sending the message
 
-    time.sleep(1) # waiting for server to process
+        #time.sleep(1) # waiting for server to process
 
-    responseSize = str(client_socket.recv(4).decode("utf-8")) # Receive server response size
 
-    response = client_socket.recv(int(responseSize)).decode("utf-8") # Receiving the actual response
+        if message != "-1":
+            responseSize = client_socket.recv(4).decode("utf-8") # Receive server response size
+            responseSizeStr = str(responseSize)
+            responseSizeInt = int(responseSizeStr)
+            response = client_socket.recv(responseSizeInt).decode("utf-8") # Receiving the actual response
 
-    print(response) # Print the response
+            print(response + "\n") # Print the response
+            time.sleep(2)
 
     client_socket.close()
 #End of main()

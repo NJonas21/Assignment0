@@ -38,8 +38,6 @@ def PUT(request, parameters):
     if cond:
         return "400 Bad Request", None
     #fileName = request[1].split("/")
-    f = open(request[1], 'x')
-    f.close()
     f = open(request[1], 'w')
     f.write(parameters)
     f.close()
@@ -53,8 +51,9 @@ def DELETE(request):
     """Function to replicate DELETE method"""
     cond = os.path.exists(request[1]) == True
     if cond:
-        return "200 OK"
-    return "404 Not Found"
+        os.remove(request[1])
+        return "200 OK", "File deleted successfully."
+    return "404 Not Found", None
 #End of DELETE()
 
 
@@ -74,6 +73,7 @@ def main():
     serverName = socket.gethostname()
     server_ip = socket.gethostbyname(serverName)
 
+    print(server_ip)
     server_port = 50001
 
     # Server fields for header
@@ -93,85 +93,94 @@ def main():
     client_conn, client_address = server_socket.accept()
     # Receiving tuple with (socket, address)
 
-    # Receive the bufsize needed
-    bufsize = int(client_conn.recv(4).decode("utf-8")) # Specify size in Bytes
-    # Also make sure the decoding is the same as the encoding
+    connectionBool = True
 
-    client_conn.send("received".encode("utf-8")) # Send a confirmation message
+    while connectionBool: # While loop
+        # Receive the bufsize needed
+        bufsize = int(client_conn.recv(4).decode("utf-8")) # Specify size in Bytes
+        # Also make sure the decoding is the same as the encoding
+        if bufsize != 2:
+            client_conn.send("received".encode("utf-8")) # Send a confirmation message
 
-    time.sleep(1)
+            time.sleep(1)
 
-    request = client_conn.recv(bufsize).decode("utf-8") # Now recieve the request
+            request = client_conn.recv(bufsize).decode("utf-8") # Now recieve the request
 
-    header, data = request.split("\n\n") # split by normal \n character
+            header, data = request.split("\n\n") # split by normal \n character
 
-    headerSplit = header.split("\n")
+            headerSplit = header.split("\n")
 
-    response = [] # Create empty list for formating response
-
-
-    cmdSplit = headerSplit[0].split(" ") # Get the first line of header
-    version= cmdSplit[2].split("/") # Find the version
-    versionNum = float(version[1])
-    cond = versionNum >= 1.0
-
-    if cond: # Checking to see if the version is valid
-        if cmdSplit[0] == "GET": # Checking each method for valid method, if true then execute it
-            SerResponse, SerData = GET(cmdSplit)
-        elif cmdSplit[0] == "PUT":
-            SerResponse, SerData = PUT(cmdSplit, data)
-        elif cmdSplit[0] == "POST":
-            SerResponse, SerData = POST(cmdSplit, data)
-        elif cmdSplit[0] == "HEAD":
-            SerResponse = HEAD(cmdSplit)
-            SerData = None
-        elif cmdSplit[0] == "DELETE":
-            SerResponse = DELETE(cmdSplit)
-            SerData = None
-        else:
-            SerResponse = "400 Bad Request"
-            SerData = None
-    else:
-        SerResponse = "505 HTTP Version Not Supported"
-        SerData = None
+            response = [] # Create empty list for formating response
 
 
-    response.append(SerResponse)# Add the first line of response to message
+            cmdSplit = headerSplit[0].split(" ") # Get the first line of header
+            version= cmdSplit[2].split("/") # Find the version
+            versionNum = float(version[1])
+            cond = versionNum >= 1.0
 
-    if SerResponse != "400 Bad Request" and SerResponse != "505 HTTP version not supported" and SerResponse != "404 Not Found":
-        #Check if Server Response is 200 OK
-        for i in headerSplit[1:]:
-            headerfield = i.split(": ")
-            if headerfield[0] == "Content-Length": # Figure out content length
-                if SerData != None:
-                    response.append(f"Content-Length: {len(SerData.encode('utf-8'))}")
+            if cond: # Checking to see if the version is valid
+                if cmdSplit[0] == "GET": # Checking each method for valid method, if true then execute it
+                    SerResponse, SerData = GET(cmdSplit)
+                elif cmdSplit[0] == "PUT":
+                    SerResponse, SerData = PUT(cmdSplit, data)
+                elif cmdSplit[0] == "POST":
+                    SerResponse, SerData = POST(cmdSplit, data)
+                elif cmdSplit[0] == "HEAD":
+                    SerResponse = HEAD(cmdSplit)
+                    SerData = None
+                elif cmdSplit[0] == "DELETE":
+                    SerResponse, SerData = DELETE(cmdSplit)
                 else:
-                    response.append(f"Content-Length: 0")
-            else: # If client mentioned the headerfield, send back the server equivalent if it has it
-                if headerfield[0] in server_fields.keys():
-                    response.append(f"{headerfield[0]}: {server_fields[headerfield[0]]}")
+                    SerResponse = "400 Bad Request"
+                    SerData = None
+            else:
+                SerResponse = "505 HTTP Version Not Supported"
+                SerData = None
 
 
-    responseMessage = "" # creates empty string
-    responseMessage += cmdSplit[2] + " " # adds version number to response
-    for j in response: # create the response string
-        responseMessage += f"{j} \n"
+            response.append(SerResponse)# Add the first line of response to message
 
-    if SerData != None:
-        responseMessage += "\n" + SerData # Add the data
+            if SerResponse != "400 Bad Request" and SerResponse != "505 HTTP Version Not Supported" and SerResponse != "404 Not Found":
+                #Check if Server Response is 200 OK
+                for i in headerSplit[1:]:
+                    headerfield = i.split(": ")
+                    if headerfield[0] == "Content-Length": # Figure out content length
+                        if SerData != None:
+                            response.append(f"Content-Length: {len(SerData.encode('utf-8'))}")
+                        else:
+                            response.append(f"Content-Length: 0")
+                    else: # If client mentioned the headerfield, send back the server equivalent if it has it
+                        if headerfield[0] in server_fields.keys():
+                            response.append(f"{headerfield[0]}: {server_fields[headerfield[0]]}")
 
-    responseEnc = responseMessage.encode("utf-8") # encode the response
-    responseSize = str(len(responseEnc)) # Get size of response
 
-    client_conn.send(responseSize.encode("utf-8")) # Send the size of response for the client
+            responseMessage = "" # creates empty string
+            responseMessage += cmdSplit[2] + " " # adds version number to response
 
-    time.sleep(1) # give client time to process
+            for j in response: # create the response string
+                responseMessage += f"{j} \n"
 
-    client_conn.send(responseEnc) # Send response
+            if SerData != None:
+                responseMessage += "\n" + SerData # Add the data
+
+            responseEnc = responseMessage.encode("utf-8") # encode the response
+            responseSize = len(responseEnc) # Get size of response
+
+            responseSizeStr = str(responseSize)
+
+            client_conn.send(responseSizeStr.encode("utf-8")) # Send the size of response for the client
+
+            time.sleep(1) # give client time to process
+
+            client_conn.send(responseEnc) # Send response
+        else:
+            break
 
     client_conn.close() # Close connections
 
     server_socket.close()
+
+
 #End of main()
 
 if __name__ == "__main__":
